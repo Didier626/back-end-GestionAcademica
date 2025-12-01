@@ -23,12 +23,10 @@ COPY src ./src
 # Compilar la aplicación
 RUN ./mvnw clean package -DskipTests
 
-# Exponer el puerto
-EXPOSE 8080
-
-# Variable de entorno para el puerto
-ENV PORT=8080
+# Exponer el puerto (Render usa PORT dinámicamente)
+EXPOSE ${PORT:-8080}
 
 # Comando para ejecutar la aplicación
+# Render inyecta PORT como variable de entorno
 ENTRYPOINT ["sh", "-c", "java -jar target/*.jar"]
 
