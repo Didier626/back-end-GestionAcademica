@@ -24,16 +24,34 @@ git remote add origin <TU_REPOSITORIO_GITHUB>
 git push -u origin main
 ```
 
-#### 2. Crear Base de Datos en Render
+#### 2. Crear Base de Datos MySQL (Opciones Gratuitas)
 
-1. Ve a tu dashboard de Render
-2. Click en "New +" → "PostgreSQL" (o MySQL si está disponible)
-3. Configura la base de datos:
-   - **Name**: `demo-db` (o el nombre que prefieras)
-   - **Database**: `as_cursos` (o el nombre que uses)
-   - **User**: Se generará automáticamente
-   - **Password**: Se generará automáticamente
-4. Guarda las credenciales que Render te proporciona
+**Opción A: Railway (Recomendado - $5 crédito gratis/mes)**
+
+1. Ve a [Railway.app](https://railway.app) y regístrate con GitHub
+2. Click en "New Project" → "Add Service" → "Database" → "MySQL"
+3. Railway creará automáticamente la base de datos MySQL
+4. Ve a la pestaña "Variables" y copia las credenciales:
+   - `MYSQLHOST` → Usa como HOST
+   - `MYSQLPORT` → Usa como PORT (normalmente 3306)
+   - `MYSQLDATABASE` → Usa como DATABASE
+   - `MYSQLUSER` → Usa como USERNAME
+   - `MYSQLPASSWORD` → Usa como PASSWORD
+
+**Opción B: Aiven (Plan Gratuito)**
+
+1. Ve a [Aiven.io](https://aiven.io) y crea cuenta
+2. Click en "Create Service" → "MySQL"
+3. Selecciona plan "Hobbyist" (gratuito)
+4. Selecciona región cercana
+5. Copia las credenciales de conexión
+
+**Opción C: Clever Cloud (Plan Gratuito)**
+
+1. Ve a [Clever Cloud](https://www.clever-cloud.com) y crea cuenta
+2. Click en "Add a service" → "MySQL"
+3. Selecciona plan gratuito
+4. Copia las credenciales
 
 #### 3. Crear Web Service en Render
 
@@ -58,15 +76,17 @@ SPRING_DATASOURCE_PASSWORD=<TU_CONTRASEÑA>
 JWT_SECRET=<TU_CLAVE_SECRETA_BASE64>
 ```
 
-**Ejemplo de valores:**
+**Ejemplo de valores (Railway):**
 
 ```
 PORT=8080
-SPRING_DATASOURCE_URL=jdbc:mysql://dpg-xxxxx-a.oregon-postgres.render.com:5432/as_cursos
-SPRING_DATASOURCE_USERNAME=demo_user
-SPRING_DATASOURCE_PASSWORD=tu_password_seguro
-JWT_SECRET=tu_clave_base64_aqui
+SPRING_DATASOURCE_URL=jdbc:mysql://containers-us-xxx.railway.app:3306/railway?useSSL=true&serverTimezone=UTC
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=tu_password_de_railway
+JWT_SECRET=r2ClnnHfHIXmd+tc6ZTUKy/ua9kzsl5kIUtZuMJilb3w0D0+F9wjkJ5GOLK8/8X/RDVFp0YeudVDR3RIfSkoRQ==
 ```
+
+**Nota:** Si usas Railway, el nombre de la base de datos normalmente es `railway`. Puedes crear la base de datos `as_cursos` desde el panel de Railway o usar `railway` directamente.
 
 **⚠️ IMPORTANTE - Generar JWT_SECRET:**
 
