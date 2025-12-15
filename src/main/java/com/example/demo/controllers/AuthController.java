@@ -1,0 +1,87 @@
+package com.example.demo.controllers;
+
+import com.example.demo.dtos.auth.AuthenticationRequest;
+import com.example.demo.dtos.auth.AuthenticationResponse;
+import com.example.demo.dtos.auth.RegisterRequest;
+import com.example.demo.entities.User;
+import com.example.demo.repositories.UserRepository;
+import com.example.demo.servicesImpl.AuthServiceImpl;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * AuthController
+ * -----------------------------------------------------
+ * ✔ /register → registra un nuevo usuario
+ * ✔ /login → devuelve token y datos del usuario
+ * ✔ /me → devuelve el usuario autenticado (JWT requerido)
+ */
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "https://back-end-gestionacademica.onrender.com"
+}) // ✅ Permitir peticiones desde el frontend y producción
+public class AuthController {
+
+    private final AuthServiceImpl authService;
+    private final UserRepository userRepository;
+
+    /**
+     * ✅ Registro de nuevo usuario
+     * Endpoint: POST /api/auth/register
+     */
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
+
+    /**
+     * ✅ Login de usuario existente
+     * Endpoint: POST /api/auth/login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+
+    /**
+     * ✅ Devuelve los datos del usuario autenticado según el token JWT
+     * Endpoint: GET /api/auth/me
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getAuthenticatedUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(401).body("Usuario no autenticado");
+            }
+
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
+
+            // Ocultamos la contraseña antes de devolver
+            user.setPassword(null);
+            return ResponseEntity.ok(user);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Error al obtener usuario autenticado: " + e.getMessage());
+        }
+    }
+}
