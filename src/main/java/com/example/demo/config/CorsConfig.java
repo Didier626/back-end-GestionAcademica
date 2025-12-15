@@ -1,43 +1,38 @@
 package com.example.demo.config;
 
-import org.springframework.context.annotation.Bean;
+import org.springframework.lang.NonNull;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.List;
-
+/**
+ * CorsConfig
+ * -----------------------------------------------------
+ * ✔ Configuración global de CORS para todos los endpoints /api/**
+ * ✔ Permite todos los puertos de localhost usando patrones
+ * ✔ Soporta credenciales (cookies, headers de autenticación)
+ * ✔ Configuración centralizada y mantenible
+ */
 @Configuration
-public class CorsConfig {
+public class CorsConfig implements WebMvcConfigurer {
 
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        // ✅ Orígenes permitidos
-        config.setAllowedOrigins(List.of(
-                "http://localhost:3000", // frontend React (Vite)
-                "http://localhost:3001",
-                "http://localhost:5173", // Vite puerto por defecto
-                "http://localhost:8080",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:3001",
-                "https://back-end-gestionacademica.onrender.com" // Producción
-        ));
-
-        // ✅ Métodos permitidos
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // ✅ Headers permitidos
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-
-        // ✅ Permitir credenciales (si usás cookies o headers con token)
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
+    @Override
+    public void addCorsMappings(@NonNull CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                // ✅ Patrones de orígenes permitidos (soporta wildcards en puertos)
+                .allowedOriginPatterns(
+                        "http://localhost:*",      // Todos los puertos de localhost
+                        "http://127.0.0.1:*",      // Todos los puertos de 127.0.0.1
+                        "https://back-end-gestionacademica.onrender.com" // Producción
+                )
+                // ✅ Métodos HTTP permitidos
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                // ✅ Headers permitidos
+                .allowedHeaders("*")
+                // ✅ Permitir credenciales (cookies, Authorization headers)
+                // ⚠️ Funciona porque usamos allowedOriginPatterns en lugar de allowedOrigins
+                .allowCredentials(true)
+                // ✅ Tiempo de caché para preflight requests (en segundos)
+                .maxAge(3600);
     }
 }
